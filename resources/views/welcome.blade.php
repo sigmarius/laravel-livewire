@@ -6,9 +6,13 @@
 
         <title>Laravel LiveWire</title>
         <script src="https://cdn.tailwindcss.com"></script>
+
+        @vite('resources/css/app.css')
+        @vite('resources/js/app.js')
         @livewireStyles
     </head>
     <body>
+        @livewire('trello')
         @livewireScripts
         <script src="https://cdn.jsdelivr.net/gh/livewire/sortable@v1.x.x/dist/livewire-sortable.js"></script>
     </body>
