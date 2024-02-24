@@ -8,26 +8,89 @@ use Livewire\Component;
 
 class Trello extends Component
 {
+    /**
+     * @var bool Начальное состояние для кнопки добавления группы
+     */
+    public bool $addGroupState = false;
+
+    /**
+     * @var string Начальное состояние для кнопки добавления карточки
+     * при нажатии на кнопку в компоненте будет содержать переданное id группы
+     */
+    public string $addCardState = '';
+
+    /**
+     * @var string Будет содержать название для элемента,
+     * приходящее при submit формы в компоненте
+     */
+    public string $title;
+
+    /**
+     * Валидация
+     * @var string[]
+     */
+    protected $rules = [
+        'title' => 'required'
+    ];
+
+    /**
+     * При клике на кнопку отображает input для ввода данных,
+     * и переходит в активное состояние
+     * @return void
+     */
     public function addGroup()
     {
-        Group::create([
-            'title' => uniqid()
-        ]);
+        $this->addGroupState = true;
     }
 
+    /**
+     * При клике на кнопку отображает input для ввода данных,
+     * и сохраняет в addCardState id группы
+     *
+     * @param $groupId
+     * @return void
+     */
     public function addCard($groupId)
     {
-        Card::create([
-            'group_id' => $groupId,
-            'title' => uniqid()
-        ]);
+        $this->addCardState = $groupId;
     }
 
+
+    /**
+     * В зависимости от переменных state
+     * сохраняет либо группу, либо карточку для группы
+     * @return void
+     */
+    public function saveEntity()
+    {
+        $data = $this->validate();
+
+        if ($this->addGroupState) {
+            Group::create($data);
+        } else {
+            $data['group_id'] = $this->addCardState;
+            Card::create($data);
+        }
+
+        // все переменные перейдут в начальное значение
+        $this->reset();
+    }
+
+    /**
+     * Удаляет группу с переданным id
+     * @param $groupId
+     * @return void
+     */
     public function deleteGroup($groupId)
     {
         Group::destroy($groupId);
     }
 
+    /**
+     * Удаляет карточку с переданным id
+     * @param $cardId
+     * @return void
+     */
     public function deleteCard($cardId)
     {
         Card::destroy($cardId);
@@ -56,6 +119,10 @@ class Trello extends Component
         }
     }
 
+    /**
+     * Рендерит компонент
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Foundation\Application
+     */
     public function render()
     {
         $groups = Group::orderBy('sort')->get();
